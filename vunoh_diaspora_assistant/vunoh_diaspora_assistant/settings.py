@@ -109,3 +109,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+#LLM_MODEL = os.getenv("LLM_MODEL", "Gemini")
+#LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.anthropic.com/v1/messages")
