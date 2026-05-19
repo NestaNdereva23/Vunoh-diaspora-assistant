@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django-specific files
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables & Secrets
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Static and Media files
+static/
+media/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
