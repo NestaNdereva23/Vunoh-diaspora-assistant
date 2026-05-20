@@ -1,4 +1,3 @@
-
 # 3 services
 
 #   1. Talk to the LLM API (extract intent, generate steps, generate messages)
@@ -9,6 +8,7 @@ import json
 import logging
 import requests
 from django.conf import settings
+from django.db import transaction
 import os
 from google import genai
 from google.genai import types
@@ -88,7 +88,7 @@ def _parse_json_response(raw: str, label: str) -> dict | list:
 Extract intent and entities
 """
 def extract_intent(message: str) -> dict:
-    raw = _call_llm(INTENT_EXTRACTION_PROMPT, message="I need to urgently send 50000ksh")
+    raw = _call_llm(system_prompt=INTENT_EXTRACTION_PROMPT, user_message=message)
     print(raw)
     result = _parse_json_response(raw, "intent extraction")
 
@@ -104,8 +104,16 @@ def extract_intent(message: str) -> dict:
 def calculate_risk_score(intent: str, entities: dict) -> int:
     risk = 0
 
-    #Amount based risk large amounts = higher risk
-    amount = entities.get("amount", 0)
+    amount_raw = entities.get("amount")
+    if amount_raw and isinstance(amount_raw, (int, float, str)):
+        try:
+            amount = int(float(amount_raw))
+        except (ValueError, TypeError):
+            amount = 0
+    else:
+        amount = 0
+
+    print(type(amount))
     if amount > 100000:
        risk += 30
     elif amount > 50000:
@@ -155,3 +163,62 @@ def generate_steps(intent, entities):
         raise RuntimeError("Step generation returned empty")
     
     return [str(step) for step in steps]
+
+def process_task(raw_message: str) -> Task:
+    """
+    Full pipeline for a single customer request
+    Steps:
+      1. Extract intent and entities via LLM
+      2. Calculate risk score
+      3. Assign team
+      4. Create Task in DB
+      5. Generate fulfilment steps via LLM → save as TaskStep rows
+      6. Generate 3-format messages via LLM → save as Message rows
+      7. Record initial StatusHistory entry
+ 
+    All DB writes happen inside a single atomic transaction.
+    If anything fails, nothing is committed.
+ 
+    Returns the saved Task instance.
+    """
+    #1. Intent extraction
+    print(f"Extracting intent from message: {raw_message[:80]}")
+    extraction = extract_intent(raw_message)
+    intent = extraction["intent"]
+    entities = extraction["entities"]
+
+    #2. Risk Scoring
+    risk_score = calculate_risk_score(intent, entities)
+    print(f"Risk score: {risk_score}")
+
+    #3. Team assignemnt
+
+    #All DB writes in one atomic block
+    with transaction.atomic():
+
+        #4. Create the task
+        task = Task.objects.create(
+            raw_message=raw_message,
+            intent=intent,
+            entities=entities,
+            risk_score=risk_score
+        )
+        print(f"Task created: {task.task_code}")
+
+        #5. Generate and save steps
+        step_descriptions = generate_steps(intent, entities)
+        TaskStep.objects.bulk_create([
+            TaskStep(
+                task=task,
+                step_order=i+1,
+                description=desc,
+            )
+            for i, desc in enumerate(step_descriptions)
+        ])
+
+        #6. Generate and save messages
+        #7. Record initial status history
+
+    return task
+
+
