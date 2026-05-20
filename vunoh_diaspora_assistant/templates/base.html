@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Vunoh Global{% endblock %}</title>
+  {% load static %}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'assistant/css/main.css' %}" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="{% url 'assistant:dashboard' %}" class="nav-brand">
+        <span class="brand-name">Vunoh Global</span>
+      </a>
+      <span class="nav-tagline">Diaspora Assistant</span>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    {% if messages %}
+      <div class="alert-stack">
+        {% for message in messages %}
+          <div class="alert alert--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>Vunoh Global - Helping the diaspora stay connected to home.</p>
+  </footer>
+
+  <script src="{% static 'assistant/js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — Vunoh Global{% endblock %}
+
+{% block content %}
+
+<!-- Submit form -->
+<section class="submit-section">
+  <div class="submit-card">
+    <h1 class="submit-heading">What do you need done back home?</h1>
+    <p class="submit-subtext">
+      Type your request in plain English. We'll handle the rest.
+    </p>
+
+    <div class="submit-form" id="submitForm">
+      <textarea
+        id="messageInput"
+        class="submit-textarea"
+        rows="3"
+        maxlength="1000"
+        placeholder="e.g. Send KES 15,000 to my mother in Kisumu urgently."
+      ></textarea>
+      <div class="submit-row">
+        <span class="char-count" id="charCount">0 / 1000</span>
+        <button class="btn btn--primary" id="submitBtn" type="button">
+          <span id="submitLabel">Submit Request</span>
+          <span id="submitSpinner" class="spinner hidden"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Inline result shown after successful submit -->
+    <div class="submit-result hidden" id="submitResult"></div>
+  </div>
+</section>
+
+<!-- ── Task dashboard  -->
+<section class="dashboard-section">
+  <div class="dashboard-header">
+    <h2 class="section-title">All Tasks</h2>
+    <span class="task-count">{{ tasks|length }} task{{ tasks|length|pluralize }}</span>
+  </div>
+
+  {% if tasks %}
+    <div class="task-grid" id="taskGrid">
+      {% for task in tasks %}
+        <div class="task-card" id="task-{{ task.id }}" data-task-id="{{ task.id }}">
+
+          <!-- Card header -->
+          <div class="task-card__header">
+            <span class="task-code">{{ task.task_code }}</span>
+            <span class="badge badge--{{ task.status|lower|cut:' ' }}">{{ task.status }}</span>
+          </div>
+
+          <!-- Intent + team -->
+          <div class="task-card__meta">
+            <span class="intent-tag">{{ task.get_intent_display }}</span>
+            <span class="team-tag">{{ task.assigned_team }}</span>
+          </div>
+
+          <!-- Original message -->
+          <p class="task-message">{{ task.raw_message|truncatechars:120 }}</p>
+
+          <!-- Risk score -->
+          <div class="risk-bar-wrap">
+            <span class="risk-label risk-label--{{ task.risk_label }}">
+              Risk: {{ task.risk_label|capfirst }} ({{ task.risk_score }}/100)
+            </span>
+            <div class="risk-bar">
+              <div
+                class="risk-bar__fill risk-bar__fill--{{ task.risk_label }}"
+                style="width: {{ task.risk_score }}%"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Steps (collapsed by default) -->
+          {% if task.steps.all %}
+            <details class="steps-block">
+              <summary class="steps-toggle">
+                Steps ({{ task.steps.count }})
+              </summary>
+              <ol class="steps-list">
+                {% for step in task.steps.all %}
+                  <li class="step-item {% if step.is_complete %}step-item--done{% endif %}">
+                    {{ step.description }}
+                  </li>
+                {% endfor %}
+              </ol>
+            </details>
+          {% endif %}
+
+          <!-- Messages (collapsed by default) -->
+          {% if task.messages.all %}
+            <details class="messages-block">
+              <summary class="steps-toggle">Confirmation Messages</summary>
+              <div class="messages-tabs">
+                {% for msg in task.messages.all %}
+                  <div class="message-item">
+                    <span class="msg-channel msg-channel--{{ msg.channel }}">{{ msg.channel|upper }}</span>
+                    <pre class="msg-body">{{ msg.body }}</pre>
+                  </div>
+                {% endfor %}
+              </div>
+            </details>
+          {% endif %}
+
+          <!-- Footer: timestamp + status control -->
+          <div class="task-card__footer">
+            <span class="task-time">{{ task.created_at|date:"d M Y, H:i" }}</span>
+            <select
+              class="status-select"
+              data-task-id="{{ task.id }}"
+              onchange="updateStatus(this)"
+            >
+              <option value="Pending"     {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+              <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+              <option value="Completed"   {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <p class="empty-state__text">No tasks yet. Submit your first request above.</p>
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'assistant/js/dashboard.js' %}"></script>
+{% endblock %}
