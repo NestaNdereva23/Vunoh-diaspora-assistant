@@ -25,7 +25,7 @@ from .models import (
 from .prompts import (
     INTENT_EXTRACTION_PROMPT,
     STEP_GENERATION_PROMPT,
-    
+    MESSAGE_GENERATION_PROMPT,
 )
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,32 @@ def generate_steps(intent, entities):
     
     return [str(step) for step in steps]
 
+def generate_messages(task_code: str, intent: str, entities: dict, risk_score: int) -> dict:
+    """
+    Asks the LLM to generate three confirmation messages: whatsapp, email, sms
+    Returnsa a dic with keys:whatsapp, email, sms
+    """
+
+    user_message = (
+        f"Task code: {task_code}\n"
+        f"Intent: {intent}\n"
+        f"Entities: {json.dumps(entities, indent=2)}\n"
+        f"Risk level: {'high' if risk_score > 60 else 'medium' if risk_score > 30 else 'low'} ({risk_score}/100)\n"
+        # f"Assigned team: {assigned_team}\n\n"
+        "Generate the three confirmation messages." 
+    )
+
+    raw = _call_llm(MESSAGE_GENERATION_PROMPT, user_message)
+    messages = _parse_json_response(raw, "message generation")
+
+    required_channels = {"whatsapp", "email", "sms"}
+    missing = required_channels - set(messages.keys())
+    if missing:
+        raise RuntimeError(f"Message generation response missing channels: {missing}")
+    
+    return messages
+
+
 def process_task(raw_message: str) -> Task:
     """
     Full pipeline for a single customer request
@@ -217,6 +243,17 @@ def process_task(raw_message: str) -> Task:
         ])
 
         #6. Generate and save messages
+        messages_data = generate_messages(
+            task_code=task.task_code,
+            intent=intent,
+            entities=entities,
+            risk_score=risk_score,
+        )
+        Message.objects.bulk_create([
+            Message(task=task, channel=channel, body=body)
+            for channel, body in messages_data.items()
+        ])
+
         #7. Record initial status history
 
     return task
