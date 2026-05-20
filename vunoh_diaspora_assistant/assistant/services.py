@@ -1,3 +1,4 @@
+
 # 3 services
 
 #   1. Talk to the LLM API (extract intent, generate steps, generate messages)
@@ -71,4 +72,28 @@ def _call_llm(system_prompt:str, user_message: str) -> str:
     # Catch any other unexpected exceptions
     except Exception as e:
         raise RuntimeError(f"LLM request failed: {str(e)}")
-    
+
+def _parse_json_response(raw: str, label: str) -> dict | list:
+      
+    cleaned = raw.strip()
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        logger.error("Failed to parse %s JSON: %s\nRaw response: %s", label, e, raw)
+        raise RuntimeError(f"Could not parse {label} response from AI. Raw: {raw[:200]}")
+
+"""
+Extract intent and entities
+"""
+def extract_intent(message: str) -> dict:
+    raw = _call_llm(INTENT_EXTRACTION_PROMPT, message="I need to urgently send 50000ksh")
+    print(raw)
+    result = _parse_json_response(raw, "intent extraction")
+
+    # Validate required keys are present
+    required = {"intent", "entities", "confidence"}
+    missing = required - set(result.keys())
+    if missing:
+        raise RuntimeError(f"Intent extraction response missing keys: {missing}")
+
+    return result
