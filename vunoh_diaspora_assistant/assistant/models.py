@@ -26,6 +26,14 @@ class MessageChannel(models.TextChoices):
     EMAIL = "email", "Email"
     SMS = "sms", "SMS"
 
+INTENT_TEAM_MAP = {
+    Intent.SEND_MONEY: AssignedTeam.FINANCE,
+    Intent.HIRE_SERVICE: AssignedTeam.OPERATIONS,
+    Intent.VERIFY_DOCUMENT: AssignedTeam.LEGAL,
+    Intent.AIRPORT_TRANSFER: AssignedTeam.LOGISTICS,
+    Intent.CHECK_STATUS: AssignedTeam.OPERATIONS,
+}
+
 class Task(models.Model):
     """
     Core task record. Created once per customer request.
