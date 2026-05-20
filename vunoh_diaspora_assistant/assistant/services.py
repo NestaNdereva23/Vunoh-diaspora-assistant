@@ -23,7 +23,9 @@ from .models import (
 #    INTENT_TEAM_MAP,
 )
 from .prompts import (
-    INTENT_EXTRACTION_PROMPT
+    INTENT_EXTRACTION_PROMPT,
+    STEP_GENERATION_PROMPT,
+    
 )
 logger = logging.getLogger(__name__)
 
@@ -97,3 +99,19 @@ def extract_intent(message: str) -> dict:
         raise RuntimeError(f"Intent extraction response missing keys: {missing}")
 
     return result
+
+#Generate Steps
+def generate_steps(intent, entities):
+    #Leverages llm to generate ordered list of fulfilemt steps specific to intent
+    user_message = (
+        f"Intent: {intent}\n"
+        f"Entities: {json.dumps(entities, indent=2)}\n\n"
+        "Generate the fulfilment steps for this task."
+    )
+    raw = _call_llm(STEP_GENERATION_PROMPT, user_message)
+    steps = _parse_json_response(raw, "step generation")
+
+    if not isinstance(steps, list) or len(steps) == 0:
+        raise RuntimeError("Step generation returned empty")
+    
+    return [str(step) for step in steps]
