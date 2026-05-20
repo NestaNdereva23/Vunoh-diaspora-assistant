@@ -20,7 +20,7 @@ from .models import (
     Message,
     StatusHistory,
     MessageChannel,
-#    INTENT_TEAM_MAP,
+    INTENT_TEAM_MAP,
 )
 from .prompts import (
     INTENT_EXTRACTION_PROMPT,
@@ -164,7 +164,7 @@ def generate_steps(intent, entities):
     
     return [str(step) for step in steps]
 
-def generate_messages(task_code: str, intent: str, entities: dict, risk_score: int) -> dict:
+def generate_messages(task_code: str, intent: str, entities: dict, risk_score: int, assigned_team: str) -> dict:
     """
     Asks the LLM to generate three confirmation messages: whatsapp, email, sms
     Returnsa a dic with keys:whatsapp, email, sms
@@ -175,7 +175,7 @@ def generate_messages(task_code: str, intent: str, entities: dict, risk_score: i
         f"Intent: {intent}\n"
         f"Entities: {json.dumps(entities, indent=2)}\n"
         f"Risk level: {'high' if risk_score > 60 else 'medium' if risk_score > 30 else 'low'} ({risk_score}/100)\n"
-        # f"Assigned team: {assigned_team}\n\n"
+        "Assigned team: {assigned_team}\n\n"
         "Generate the three confirmation messages." 
     )
 
@@ -188,6 +188,11 @@ def generate_messages(task_code: str, intent: str, entities: dict, risk_score: i
         raise RuntimeError(f"Message generation response missing channels: {missing}")
     
     return messages
+
+def assign_team(intent: str):
+    # Maps intent to the responsible team 
+    # Fallback to Operations for unmapped intent
+    return INTENT_TEAM_MAP.get(intent, "Operations")
 
 
 def process_task(raw_message: str) -> Task:
@@ -218,6 +223,7 @@ def process_task(raw_message: str) -> Task:
     print(f"Risk score: {risk_score}")
 
     #3. Team assignemnt
+    assigned_team = assign_team(intent)
 
     #All DB writes in one atomic block
     with transaction.atomic():
@@ -227,7 +233,8 @@ def process_task(raw_message: str) -> Task:
             raw_message=raw_message,
             intent=intent,
             entities=entities,
-            risk_score=risk_score
+            risk_score=risk_score,
+            assigned_team=assigned_team,
         )
         print(f"Task created: {task.task_code}")
 
@@ -248,6 +255,7 @@ def process_task(raw_message: str) -> Task:
             intent=intent,
             entities=entities,
             risk_score=risk_score,
+            assigned_team=assigned_team,
         )
         Message.objects.bulk_create([
             Message(task=task, channel=channel, body=body)
