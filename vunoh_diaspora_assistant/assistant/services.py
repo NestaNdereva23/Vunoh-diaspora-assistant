@@ -27,6 +27,8 @@ from .prompts import (
     STEP_GENERATION_PROMPT,
     MESSAGE_GENERATION_PROMPT,
 )
+from .riskengine import calculate_risk_score
+
 logger = logging.getLogger(__name__)
 
 """
@@ -100,53 +102,53 @@ def extract_intent(message: str) -> dict:
 
     return result
 
-#3. Risk Score Calculation
-def calculate_risk_score(intent: str, entities: dict) -> int:
-    risk = 0
+# #3. Risk Score Calculation
+# def calculate_risk_score(intent: str, entities: dict) -> int:
+#     risk = 0
 
-    amount_raw = entities.get("amount")
-    if amount_raw and isinstance(amount_raw, (int, float, str)):
-        try:
-            amount = int(float(amount_raw))
-        except (ValueError, TypeError):
-            amount = 0
-    else:
-        amount = 0
+#     amount_raw = entities.get("amount")
+#     if amount_raw and isinstance(amount_raw, (int, float, str)):
+#         try:
+#             amount = int(float(amount_raw))
+#         except (ValueError, TypeError):
+#             amount = 0
+#     else:
+#         amount = 0
 
-    print(type(amount))
-    if amount > 100000:
-       risk += 30
-    elif amount > 50000:
-        risk += 20
-    elif amount > 10000:
-        risk += 10 
+#     print(type(amount))
+#     if amount > 100000:
+#        risk += 30
+#     elif amount > 50000:
+#         risk += 20
+#     elif amount > 10000:
+#         risk += 10 
 
-    # Intent-based risk
-    high_risk_intents = ["land_title", "property_purchase", "legal_document"]
-    medium_risk_intents = ["urgent_payment", "emergency_funds"]
+#     # Intent-based risk
+#     high_risk_intents = ["land_title", "property_purchase", "legal_document"]
+#     medium_risk_intents = ["urgent_payment", "emergency_funds"]
     
-    if intent in high_risk_intents:
-        risk += 30
-    elif intent in medium_risk_intents:
-        risk += 15
+#     if intent in high_risk_intents:
+#         risk += 30
+#     elif intent in medium_risk_intents:
+#         risk += 15
 
-     # Urgency increases risk
-    if entities.get("urgency") == "high":
-        risk += 20
-    elif entities.get("urgency") == "medium":
-        risk += 10
+#      # Urgency increases risk
+#     if entities.get("urgency") == "high":
+#         risk += 20
+#     elif entities.get("urgency") == "medium":
+#         risk += 10
 
-    # Recipient verification
-    if not entities.get("recipient_verified", False):
-        risk += 25
+#     # Recipient verification
+#     if not entities.get("recipient_verified", False):
+#         risk += 25
     
-    # Customer history (lower risk for returning customers)
-    if entities.get("returning_customer"):
-        risk -= 20
-    if entities.get("clean_history"):
-        risk -= 15
+#     # Customer history (lower risk for returning customers)
+#     if entities.get("returning_customer"):
+#         risk -= 20
+#     if entities.get("clean_history"):
+#         risk -= 15
     
-    return max(0, min(100, risk))
+#     return max(0, min(100, risk))
 
 #4.  Generate Steps
 def generate_steps(intent, entities):
