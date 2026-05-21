@@ -1,37 +1,40 @@
-/* ─────────────────────────────────────────────────────────────
-   Vunoh Global — main.css
-   Fonts: Syne (headings) + DM Sans (body)
-   Palette: deep forest green + warm off-white + amber accent
-───────────────────────────────────────────────────────────── */
-
-/* ── Variables ─────────────────────────────────────────────── */
 :root {
-  --green-900: #0d2b1f;
-  --green-800: #14402e;
-  --green-600: #1d6647;
-  --green-400: #2d9e6b;
-  --green-100: #d6f0e4;
+  /* ── Primary Brand Colors ─────────────────────────────────── */
+  --blue-900:  #1e3a8a;
+  --blue-800:  #1e40af;
+  --blue-600:  #2563eb;
+  --blue-400:  #60a5fa;
+  --blue-100:  #dbeafe;
 
-  --amber:     #e8a020;
-  --amber-lt:  #fdf3dc;
+  --sky-500:   #0ea5e9;
+  --sky-lt:    #e0f2fe;
 
-  --red-500:   #c0392b;
-  --red-100:   #fce8e6;
+  --indigo-600: #4f46e5;
+  --indigo-lt:  #e0e7ff;
 
-  --ink:       #111a15;
-  --ink-mid:   #3d5245;
-  --ink-soft:  #6b8a78;
+  /* ── Status/Alert Colors ──────────────────────────────────── */
+  --red-500:   #ef4444;
+  --red-100:   #fee2e2;
 
-  --surface:   #f7f9f7;
+  --green-500: #22c55e;
+  --green-100: #dcfce7;
+
+  /* ── Neutral/Structural Colors ────────────────────────────── */
+  --ink:       #111827;
+  --ink-mid:   #374151;
+  --ink-soft:  #9ca3af;
+
+  --surface:   #f3f4f6;
   --card:      #ffffff;
-  --border:    #dce8e2;
+  --border:    #e5e7eb;
 
+  /* ── Design Tokens ────────────────────────────────────────── */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  --shadow-sm: 0 1px 3px rgba(13,43,31,.06), 0 1px 2px rgba(13,43,31,.04);
-  --shadow-md: 0 4px 16px rgba(13,43,31,.08), 0 2px 6px rgba(13,43,31,.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
 
   --font-head: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -54,8 +57,8 @@ body {
 
 /* ── Navbar ─────────────────────────────────────────────────── */
 .navbar {
-  background: var(--green-900);
-  border-bottom: 1px solid var(--green-800);
+  background: var(--blue-900);
+  border-bottom: 1px solid var(--blue-800);
   padding: 0 1.5rem;
   height: 56px;
   display: flex;
@@ -84,8 +87,8 @@ body {
 .brand-mark {
   width: 30px;
   height: 30px;
-  background: var(--amber);
-  color: var(--green-900);
+  background: var(--sky-500);
+  color: var(--blue-900);
   font-family: var(--font-head);
   font-weight: 700;
   font-size: .95rem;
@@ -104,7 +107,7 @@ body {
 
 .nav-tagline {
   font-size: .78rem;
-  color: var(--green-400);
+  color: var(--blue-400);
   letter-spacing: .04em;
   text-transform: uppercase;
 }
@@ -126,14 +129,14 @@ body {
   border-radius: var(--radius-sm);
   font-size: .9rem;
 }
-.alert--success { background: var(--green-100); color: var(--green-800); }
+.alert--success { background: var(--green-100); color: #15803d; }
 .alert--error   { background: var(--red-100);   color: var(--red-500); }
 
 /* ── Submit section ─────────────────────────────────────────── */
 .submit-section { margin-bottom: 2.5rem; }
 
 .submit-card {
-  background: var(--green-900);
+  background: var(--blue-900);
   border-radius: var(--radius-lg);
   padding: 2rem;
   color: #fff;
@@ -148,7 +151,7 @@ body {
 }
 
 .submit-subtext {
-  color: var(--green-400);
+  color: var(--blue-400);
   font-size: .9rem;
   margin-bottom: 1.25rem;
 }
@@ -156,9 +159,9 @@ body {
 .submit-textarea {
   width: 100%;
   padding: .85rem 1rem;
-  border: 1.5px solid var(--green-600);
+  border: 1.5px solid var(--blue-600);
   border-radius: var(--radius-md);
-  background: var(--green-800);
+  background: var(--blue-800);
   color: #fff;
   font-family: var(--font-body);
   font-size: .95rem;
@@ -171,7 +174,7 @@ body {
 
 .submit-textarea:focus {
   outline: none;
-  border-color: var(--amber);
+  border-color: var(--sky-500);
 }
 
 .submit-row {
@@ -204,27 +207,27 @@ body {
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 
 .btn--primary {
-  background: var(--amber);
-  color: var(--green-900);
+  background: var(--sky-500);
+  color: #fff;
 }
 .btn--primary:hover:not(:disabled) { opacity: .9; }
 
 /* ── Submit result ──────────────────────────────────────────── */
 .submit-result {
   margin-top: 1.25rem;
-  background: var(--green-800);
-  border: 1px solid var(--green-600);
+  background: var(--blue-800);
+  border: 1px solid var(--blue-600);
   border-radius: var(--radius-md);
   padding: 1rem 1.25rem;
   font-size: .88rem;
   line-height: 1.6;
-  color: var(--green-100);
+  color: var(--blue-100);
 }
 
 .submit-result .result-code {
   font-family: var(--font-head);
   font-size: 1.1rem;
-  color: var(--amber);
+  color: var(--sky-500);
   font-weight: 700;
   display: block;
   margin-bottom: .35rem;
@@ -288,7 +291,7 @@ body {
   font-family: var(--font-head);
   font-weight: 700;
   font-size: .95rem;
-  color: var(--green-800);
+  color: var(--blue-800);
   letter-spacing: .03em;
 }
 
@@ -308,13 +311,13 @@ body {
 }
 
 .intent-tag {
-  background: var(--green-100);
-  color: var(--green-800);
+  background: var(--blue-100);
+  color: var(--blue-800);
 }
 
 .team-tag {
-  background: var(--amber-lt);
-  color: #7a4f00;
+  background: var(--indigo-lt);
+  color: var(--indigo-600);
 }
 
 .task-message {
@@ -332,8 +335,8 @@ body {
   text-transform: uppercase;
   letter-spacing: .04em;
 }
-.risk-label--low    { color: var(--green-600); }
-.risk-label--medium { color: var(--amber); }
+.risk-label--low    { color: var(--green-500); }
+.risk-label--medium { color: var(--sky-500); }
 .risk-label--high   { color: var(--red-500); }
 
 .risk-bar {
@@ -347,8 +350,8 @@ body {
   border-radius: 99px;
   transition: width .4s ease;
 }
-.risk-bar__fill--low    { background: var(--green-400); }
-.risk-bar__fill--medium { background: var(--amber); }
+.risk-bar__fill--low    { background: var(--green-500); }
+.risk-bar__fill--medium { background: var(--sky-500); }
 .risk-bar__fill--high   { background: var(--red-500); }
 
 /* ── Steps & Messages (details/summary) ─────────────────────── */
@@ -414,9 +417,9 @@ details[open] .steps-toggle::before { content: '▼  '; }
   border-radius: 4px;
   margin-bottom: .4rem;
 }
-.msg-channel--whatsapp { background: #e7f9ef; color: #1a7a3a; }
-.msg-channel--email    { background: #e8eeff; color: #2040a0; }
-.msg-channel--sms      { background: var(--amber-lt); color: #7a4f00; }
+.msg-channel--whatsapp { background: #e7f9ef; color: #15803d; }
+.msg-channel--email    { background: var(--blue-100); color: var(--blue-800); }
+.msg-channel--sms      { background: var(--sky-lt); color: #0369a1; }
 
 .msg-body {
   font-family: var(--font-body);
@@ -436,9 +439,9 @@ details[open] .steps-toggle::before { content: '▼  '; }
   padding: .2rem .6rem;
   border-radius: 99px;
 }
-.badge--pending    { background: #f0f0f0; color: #666; }
-.badge--inprogress { background: #fff3cd; color: #856404; }
-.badge--completed  { background: var(--green-100); color: var(--green-800); }
+.badge--pending    { background: #f3f4f6; color: #6b7280; }
+.badge--inprogress { background: var(--sky-lt); color: #0369a1; }
+.badge--completed  { background: var(--green-100); color: #15803d; }
 
 /* ── Task card footer ───────────────────────────────────────── */
 .task-card__footer {
@@ -465,7 +468,7 @@ details[open] .steps-toggle::before { content: '▼  '; }
   color: var(--ink);
   cursor: pointer;
 }
-.status-select:focus { outline: 2px solid var(--green-400); }
+.status-select:focus { outline: 2px solid var(--blue-400); }
 
 /* ── Empty state ────────────────────────────────────────────── */
 .empty-state {
@@ -480,7 +483,7 @@ details[open] .steps-toggle::before { content: '▼  '; }
   width: 14px;
   height: 14px;
   border: 2px solid rgba(255,255,255,.3);
-  border-top-color: var(--green-900);
+  border-top-color: var(--blue-900);
   border-radius: 50%;
   animation: spin .6s linear infinite;
   flex-shrink: 0;
