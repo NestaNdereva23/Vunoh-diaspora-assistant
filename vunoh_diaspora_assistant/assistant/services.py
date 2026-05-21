@@ -263,7 +263,37 @@ def process_task(raw_message: str) -> Task:
         ])
 
         #7. Record initial status history
+        StatusHistory.objects.create(
+            task=task,
+            from_status="",
+            to_status=task.status,
+            note="Task created from "
+        )
 
     return task
 
-
+#Status history update
+def update_task_status(task: Task, new_status: str) -> Task:
+    """
+    Updates a task's status and appends a StatusHistory record.
+    Valid transitions:
+      Pending → In Progress → Completed
+    """
+    valid_statuses = {"Pending", "In Progress", "Completed"}
+    if new_status not in valid_statuses:
+        raise ValueError(f"Invalid status '{new_status}'. Must be one of: {valid_statuses}")
+ 
+    with transaction.atomic():
+        old_status = task.status
+        task.status = new_status
+        task.save(update_fields=["status", "updated_at"])
+ 
+        StatusHistory.objects.create(
+            task=task,
+            from_status=old_status,
+            to_status=new_status,
+            note=f"Status updated via dashboard",
+        )
+ 
+    logger.info("Task %s status: %s → %s", task.task_code, old_status, new_status)
+    return task

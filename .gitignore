@@ -17,7 +17,6 @@ venv/
 ENV/
 
 # Static and Media files
-static/
 media/
 
 # OS-specific files

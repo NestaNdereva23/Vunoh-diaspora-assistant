@@ -9,5 +9,8 @@ urlpatterns = [
  
     # Task detail (GET — returns task + steps + messages as JSON)
     path("tasks/<uuid:pk>/", views.TaskDetailView.as_view(), name="task_detail"),
+
+    #Task update
+    path("assistant/<uuid:pk>/status/", views.TaskStatusUpdateView.as_view(), name="task_status_update"),
     
 ]
