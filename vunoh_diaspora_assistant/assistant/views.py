@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import logging
 import json
-from .services import process_task
+from .services import process_task, update_task_status
 
 logger = logging.getLogger(__name__)
 
@@ -93,3 +93,27 @@ class TaskSubmitView(View):
             )
  
         return JsonResponse(task_to_dict(task), status=201)
+    
+@method_decorator(csrf_exempt, name="dispatch")
+class TaskStatusUpdateView(View):
+    def patch(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return JsonResponse({"error": "Task not found"}, status=404)
+        
+        try:
+            body= json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON body"}, status=400)
+        
+        new_status = body.get("status", "").strip()
+        if not new_status:
+             return JsonResponse({"error": "The 'status' field is required."}, status=400)
+        
+        try:
+            task = update_task_status(task, new_status)
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+ 
+        return JsonResponse({"task_code": task.task_code, "status": task.status})
