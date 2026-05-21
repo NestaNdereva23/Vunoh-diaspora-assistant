@@ -99,13 +99,17 @@ function showResultError(message) {
 
 // Status update
 async function updateStatus(selectEl) {
-  const taskId   = selectEl.dataset.taskId;
+  const taskId = selectEl.dataset.taskId;
   const newStatus = selectEl.value;
 
-  // Optimistically update the badge while the request is in flight
-  const card  = document.getElementById(`assistant-${taskId}`);
-  const badge = card.querySelector('.badge');
-  setBadge(badge, newStatus);
+  let badge = null;
+  const card = document.getElementById(taskId);
+  if (card) {
+    badge = card.querySelector('.badge');
+    if (badge) setBadge(badge, newStatus);
+  } else {
+    console.error(`Could not find card with ID: ${taskId}`);
+  }
 
   try {
     const response = await fetch(`/assistant/${taskId}/status/`, {
@@ -118,12 +122,10 @@ async function updateStatus(selectEl) {
     });
 
     if (!response.ok) {
-      // Revert the badge if the server rejected the change
       const original = selectEl.dataset.originalStatus || newStatus;
-      setBadge(badge, original);
+      if (badge) setBadge(badge, original); 
       console.error('Status update failed:', await response.json());
     } else {
-      // Persist the new value so we can revert correctly on future failures
       selectEl.dataset.originalStatus = newStatus;
     }
 
